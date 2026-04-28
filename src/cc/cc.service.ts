@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "prisma/prisma.service";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 import { ccPdfTemplate } from "./cc-template";
 
 @Injectable()
@@ -75,9 +76,10 @@ export class CcService {
     const html = ccPdfTemplate(cc);
 
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+  args: chromium.args as any,
+  executablePath: (await chromium.executablePath()) as string,
+  headless: true,
+});
 
     try {
       const page = await browser.newPage();
