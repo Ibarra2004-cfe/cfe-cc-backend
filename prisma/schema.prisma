@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoCC {
+  NORMAL
+  DIRECTO
+}
+
+model ConstanciaCalculo {
+  id                    Int      @id @default(autoincrement())
+  tipoCC                TipoCC
+
+  numeroMemoria         String
+  fecha                 DateTime
+
+  nombre                String
+  direccion             String
+  medidor               String?
+  tarifa                String?
+  rpu                   String?
+  geo                   String?
+  agencia               String?
+
+  descripcion           String
+  tipoAnomalia          String
+  categoriaAnomalia     String?
+  descripcionAnomalia   String?
+
+  tipoGiro              String
+  metodoCalculo         String
+  periodoAjuste         String
+
+  powerAnalisisTexto    String?
+
+  amperes               String?
+  volts                 String?
+  transformadores       String?
+
+  personaAtiende        String
+  ordenSuspension       String?
+
+  tablaCalculoBase64    String?
+  powerAnalisisBase64   String?
+
+  ingenieroNombre       String   @default("ING. MIGUEL BRAVO CRUZ")
+  puesto                String   @default("SUPERVISOR ZONA")
+  area                  String   @default("ÁREA MEDICIÓN MATAMOROS")
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
