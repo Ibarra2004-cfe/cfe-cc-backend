@@ -18,7 +18,7 @@ async function bootstrap() {
 
   await app.listen(port, "0.0.0.0");
 
-  console.log(`Backend CC corriendo en http://localhost:${port}`);
+  console.log(`Backend CC corriendo en puerto ${port}`);
 }
 
 bootstrap();
