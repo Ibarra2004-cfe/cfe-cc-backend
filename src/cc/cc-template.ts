@@ -1,4 +1,23 @@
+import * as fs from "fs";
+import * as path from "path";
+
+function getLogoBase64() {
+  const possiblePaths = [
+    path.join(process.cwd(), "src", "assets", "cfe-logo.png"),
+    path.join(process.cwd(), "dist", "src", "assets", "cfe-logo.png"),
+    path.join(__dirname, "..", "assets", "cfe-logo.png"),
+  ];
+
+  const logoPath = possiblePaths.find((p) => fs.existsSync(p));
+
+  if (!logoPath) return "";
+
+  return `data:image/png;base64,${fs.readFileSync(logoPath).toString("base64")}`;
+}
+
 export function ccPdfTemplate(cc: any) {
+  const logoBase64 = getLogoBase64();
+
   const fecha = new Date(cc.fecha)
     .toLocaleDateString("es-MX", {
       day: "2-digit",
@@ -34,7 +53,7 @@ export function ccPdfTemplate(cc: any) {
 <style>
   @page {
     size: Letter;
-    margin: 1.45cm 1.65cm 1.35cm 1.65cm;
+    margin: 1.25cm 1.55cm 1.2cm 1.55cm;
   }
 
   * {
@@ -44,8 +63,8 @@ export function ccPdfTemplate(cc: any) {
   body {
     font-family: Arial, Helvetica, sans-serif;
     color: #000;
-    font-size: 12px;
-    line-height: 1.28;
+    font-size: 11.5px;
+    line-height: 1.24;
   }
 
   .header {
@@ -54,10 +73,23 @@ export function ccPdfTemplate(cc: any) {
     align-items: flex-start;
     border-top: 1px solid #bdbdbd;
     padding-top: 7px;
-    margin-bottom: 34px;
+    margin-bottom: 28px;
   }
 
   .logo {
+    width: 110px;
+    height: 58px;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .logo img {
+    width: 110px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .logo-fallback {
     color: #00843d;
     font-size: 38px;
     font-style: italic;
@@ -78,7 +110,7 @@ export function ccPdfTemplate(cc: any) {
     text-align: right;
     color: red;
     font-size: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .title {
@@ -86,7 +118,7 @@ export function ccPdfTemplate(cc: any) {
     font-size: 13px;
     font-weight: bold;
     text-transform: uppercase;
-    margin-bottom: 18px;
+    margin-bottom: 17px;
   }
 
   .title span {
@@ -100,11 +132,11 @@ export function ccPdfTemplate(cc: any) {
 
   .field-row {
     display: flex;
-    min-height: 17px;
+    min-height: 16px;
   }
 
   .label {
-    width: 110px;
+    width: 108px;
     text-transform: uppercase;
   }
 
@@ -115,7 +147,7 @@ export function ccPdfTemplate(cc: any) {
 
   .section-title {
     font-weight: bold;
-    margin-top: 14px;
+    margin-top: 13px;
     margin-bottom: 4px;
     font-size: 13px;
   }
@@ -123,53 +155,61 @@ export function ccPdfTemplate(cc: any) {
   .paragraph {
     text-align: justify;
     white-space: pre-line;
-    margin-bottom: 11px;
+    margin-bottom: 10px;
+  }
+
+  .photo-img {
+    width: 100%;
+    text-align: center;
+    margin: 8px 0 12px 0;
+    page-break-inside: avoid;
+  }
+
+  .photo-img img {
+    max-width: 82%;
+    max-height: 205px;
+    object-fit: contain;
   }
 
   .pdf-img {
     width: 100%;
     text-align: center;
-    margin: 12px 0 15px 0;
+    margin: 10px 0 13px 0;
     page-break-inside: avoid;
   }
 
   .pdf-img img {
     max-width: 96%;
-    max-height: 250px;
+    max-height: 235px;
     object-fit: contain;
   }
 
   .power-img {
     width: 100%;
     text-align: center;
-    margin: 10px 0 18px 0;
+    margin: 8px 0 15px 0;
     page-break-inside: avoid;
   }
 
   .power-img img {
     max-width: 96%;
-    max-height: 330px;
+    max-height: 280px;
     object-fit: contain;
   }
 
   .signature {
-    margin-top: 36px;
+    margin-top: 34px;
     text-align: left;
+    page-break-inside: avoid;
   }
 
   .att {
     letter-spacing: 5px;
     font-style: italic;
-    margin-bottom: 60px;
+    margin-bottom: 55px;
   }
 
-  .firma-nombre {
-    font-weight: bold;
-    color: red;
-    font-style: italic;
-    text-transform: uppercase;
-  }
-
+  .firma-nombre,
   .footer-text {
     font-weight: bold;
     color: red;
@@ -181,7 +221,14 @@ export function ccPdfTemplate(cc: any) {
 
 <body>
   <div class="header">
-    <div class="logo">CFE</div>
+    <div class="logo">
+      ${
+        logoBase64
+          ? `<img src="${logoBase64}" />`
+          : `<div class="logo-fallback">CFE</div>`
+      }
+    </div>
+
     <div class="header-right">
       <div>División de Distribución Centro Oriente</div>
       <div>Zona de Distribución Matamoros</div>
@@ -212,6 +259,8 @@ export function ccPdfTemplate(cc: any) {
 ${cc.tipoAnomalia || ""}${cc.descripcionAnomalia ? " " + cc.descripcionAnomalia : ""}
   </div>
 
+  ${imgBlock(cc.fotoAnomaliaBase64, "photo-img")}
+
   <div class="section-title">Tipo de giro:</div>
   <div class="paragraph">${cc.tipoGiro || ""}</div>
 
@@ -227,18 +276,13 @@ ${cc.tipoAnomalia || ""}${cc.descripcionAnomalia ? " " + cc.descripcionAnomalia 
     !isDirecto
       ? `
         <div class="section-title">Power análisis del servicio:</div>
-        ${
-          cc.powerAnalisisTexto
-            ? `<div class="paragraph">${cc.powerAnalisisTexto}</div>`
-            : ""
-        }
-
+        ${cc.powerAnalisisTexto ? `<div class="paragraph">${cc.powerAnalisisTexto}</div>` : ""}
         ${imgBlock(cc.powerAnalisisBase64, "power-img")}
       `
       : ""
   }
 
-  <div class="section-title">Persona que atiende revisión:</div>
+  <div class="section-title">Situación actual:</div>
   <div class="paragraph">${cc.personaAtiende || ""}</div>
 
   ${

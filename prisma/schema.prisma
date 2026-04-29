@@ -45,6 +45,7 @@ model ConstanciaCalculo {
   personaAtiende        String
   ordenSuspension       String?
 
+  fotoAnomaliaBase64    String?
   tablaCalculoBase64    String?
   powerAnalisisBase64   String?
 

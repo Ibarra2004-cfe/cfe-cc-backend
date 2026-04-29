@@ -42,6 +42,7 @@ export class CcService {
         personaAtiende: data.personaAtiende,
         ordenSuspension: data.ordenSuspension || null,
 
+        fotoAnomaliaBase64: data.fotoAnomaliaBase64 || null,
         tablaCalculoBase64: data.tablaCalculoBase64 || null,
         powerAnalisisBase64:
           data.tipoCC === "NORMAL" ? data.powerAnalisisBase64 || null : null,
@@ -76,10 +77,10 @@ export class CcService {
     const html = ccPdfTemplate(cc);
 
     const browser = await puppeteer.launch({
-  args: chromium.args as any,
-  executablePath: (await chromium.executablePath()) as string,
-  headless: true,
-});
+      args: chromium.args as any,
+      executablePath: await chromium.executablePath(),
+      headless: true,
+    });
 
     try {
       const page = await browser.newPage();
