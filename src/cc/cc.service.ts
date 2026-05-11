@@ -32,7 +32,6 @@ export class CcService {
         tipoGiro: data.tipoGiro,
         metodoCalculo: data.metodoCalculo,
         periodoAjuste: data.periodoAjuste,
-
         powerAnalisisTexto: data.powerAnalisisTexto || null,
 
         amperes: data.amperes || null,
@@ -40,6 +39,7 @@ export class CcService {
         transformadores: data.transformadores || null,
 
         personaAtiende: data.personaAtiende,
+        situacionActual: data.situacionActual || null,
         ordenSuspension: data.ordenSuspension || null,
 
         fotoAnomaliaBase64: data.fotoAnomaliaBase64 || null,

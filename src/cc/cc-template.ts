@@ -15,6 +15,23 @@ function getLogoBase64() {
   return `data:image/png;base64,${fs.readFileSync(logoPath).toString("base64")}`;
 }
 
+function formatNumeroMemoria(numeroMemoria?: string | null) {
+  const raw = String(numeroMemoria || "").trim().toUpperCase();
+
+  if (!raw || raw === "SIN FOLIO") {
+    return "SIN FOLIO/2026";
+  }
+
+  const limpio = raw
+    .replace("/2026", "")
+    .replace("/ 2026", "")
+    .replace("2026", "")
+    .replace("/", "")
+    .trim();
+
+  return `${limpio || "SIN FOLIO"}/2026`;
+}
+
 export function ccPdfTemplate(cc: any) {
   const logoBase64 = getLogoBase64();
 
@@ -65,6 +82,7 @@ export function ccPdfTemplate(cc: any) {
     color: #000;
     font-size: 11.5px;
     line-height: 1.24;
+    text-transform: uppercase;
   }
 
   .header {
@@ -238,7 +256,8 @@ export function ccPdfTemplate(cc: any) {
   <div class="fecha">${fecha}</div>
 
   <div class="title">
-    MEMORIA TÉCNICA PARA DETERMINAR AJUSTE A LA FACTURACIÓN <span>${cc.numeroMemoria}</span>
+    MEMORIA TÉCNICA PARA DETERMINAR AJUSTE A LA FACTURACIÓN 
+    <span>${formatNumeroMemoria(cc.numeroMemoria)}</span>
   </div>
 
   <div class="data-block">
@@ -252,38 +271,53 @@ export function ccPdfTemplate(cc: any) {
   </div>
 
   <div class="section-title">Descripción de la anomalía:</div>
-  <div class="paragraph">${cc.descripcion || ""}</div>
+  <div class="paragraph">${cc.descripcion || "----------------------"}</div>
 
   <div class="section-title">Tipo de anomalía:</div>
   <div class="paragraph">
-${cc.tipoAnomalia || ""}${cc.descripcionAnomalia ? " " + cc.descripcionAnomalia : ""}
+    ${cc.tipoAnomalia || "----------------------"}${
+      cc.descripcionAnomalia ? " " + cc.descripcionAnomalia : ""
+    }
   </div>
 
   ${imgBlock(cc.fotoAnomaliaBase64, "photo-img")}
 
   <div class="section-title">Tipo de giro:</div>
-  <div class="paragraph">${cc.tipoGiro || ""}</div>
+  <div class="paragraph">${cc.tipoGiro || "----------------------"}</div>
 
   <div class="section-title">Método de cálculo de ajuste:</div>
-  <div class="paragraph">${cc.metodoCalculo || ""}</div>
+  <div class="paragraph">${cc.metodoCalculo || "----------------------"}</div>
 
   ${imgBlock(cc.tablaCalculoBase64, "pdf-img")}
 
   <div class="section-title">Periodo del ajuste:</div>
-  <div class="paragraph">${cc.periodoAjuste || ""}</div>
+  <div class="paragraph">${cc.periodoAjuste || "----------------------"}</div>
 
   ${
     !isDirecto
       ? `
         <div class="section-title">Power análisis del servicio:</div>
-        ${cc.powerAnalisisTexto ? `<div class="paragraph">${cc.powerAnalisisTexto}</div>` : ""}
+        ${
+          cc.powerAnalisisTexto
+            ? `<div class="paragraph">${cc.powerAnalisisTexto}</div>`
+            : ""
+        }
         ${imgBlock(cc.powerAnalisisBase64, "power-img")}
       `
       : ""
   }
 
-  <div class="section-title">Situación actual:</div>
-  <div class="paragraph">${cc.personaAtiende || ""}</div>
+  <div class="section-title">Persona que atiende revisión:</div>
+  <div class="paragraph">${cc.personaAtiende || "----------------------"}</div>
+
+  ${
+    cc.situacionActual
+      ? `
+        <div class="section-title">Situación actual:</div>
+        <div class="paragraph">${cc.situacionActual}</div>
+      `
+      : ""
+  }
 
   ${
     cc.ordenSuspension

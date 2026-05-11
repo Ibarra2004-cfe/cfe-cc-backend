@@ -35,7 +35,6 @@ model ConstanciaCalculo {
   tipoGiro              String
   metodoCalculo         String
   periodoAjuste         String
-
   powerAnalisisTexto    String?
 
   amperes               String?
@@ -43,6 +42,7 @@ model ConstanciaCalculo {
   transformadores       String?
 
   personaAtiende        String
+  situacionActual       String?
   ordenSuspension       String?
 
   fotoAnomaliaBase64    String?
